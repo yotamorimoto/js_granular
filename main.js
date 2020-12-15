@@ -33,7 +33,7 @@ sldrSpeed.oninput = function() {
   maxwait = sc.linexp(this.vavlue, 0,1, 6,1.5)
 }
 const instrument = 'felt'
-const blockSize = 2048
+const blockSize = 4096
 const brown = new Brown(10)
 const mTrig = Trig()
 const mTDiv = TDiv()
@@ -69,7 +69,7 @@ const grain = () => {
     rand()*0.3,
     -18*rand(),
     0.05,
-    0.07,
+    0.05,
     0.7
   )
 }
@@ -86,8 +86,8 @@ function init() {
     verb.connect(master)
     master.connect(audio.destination)
     sldrVolume.oninput()
-    setInterval(stream, 50)
-    setInterval(grain, 50)
+    setInterval(stream, 100)
+    setInterval(grain, 100)
   })();
   b = brown.next(
     sc.linlin(sldrMood.value, 0,1, 0.05,1.0),
