@@ -34,9 +34,10 @@ class Perc extends Env {
 class AR extends Env {
   trigger(attack, release) {
     const now = audio.currentTime
-    this.vca.gain.setValueAtTime(this.offset, now)
-    this.vca.gain.linearRampToValueAtTime(this.level, now + attack)
-    this.vca.gain.linearRampToValueAtTime(this.offset, now + attack + release)
+    this.vca.gain.cancelScheduledValues(now)
+    this.vca.gain.setValueAtTime(0, now)
+    this.vca.gain.linearRampToValueAtTime(1, now + attack)
+    this.vca.gain.linearRampToValueAtTime(0, now + attack + release)
   }
 }
 class ASR extends Env {
@@ -54,6 +55,14 @@ function set_xfade(a, b, fade) {
 }
 function connect(...nodes) {
   for (let i=0; i<nodes.length-1; i++) nodes[i].connect(nodes[i+1])
+}
+function schedTrash1(time, node) {
+  const when = audio.currentTime + time
+  node.stop(when+0.1)
+  setTimeout(() => {
+    node.disconnect()
+    node = null
+  }, when*1000+200)
 }
 function schedTrash(time, ...nodes) {
   const when = audio.currentTime + time
@@ -100,22 +109,32 @@ export function PlaySample(note, pos, db, atk, rls, res) {
   const now = audio.currentTime
   // const filter = audio.createBiquadFilter()
   const smp = audio.createBufferSource()
-  const out = audio.createGain()
-  const fxg = audio.createGain()
+  // const out = audio.createGain()
+  // const fxg = audio.createGain()
   const amp = dbamp(db+sample.db)
-  const env = new AR(amp)
+  // const env = new AR(amp)
+  const env = audio.createGain()
   const panner = new Panner(rand()*2-1)
   const map = sample.map[note]
   smp.buffer = sample.buffers[map[0]]
+  smp.playbackRate.cancelScheduledValues(now)
   smp.playbackRate.value = map[1]
   // filter.type = 'lowpass'
   // filter.frequency.value = linexp(0.01, 1, 500, 12000)
   // set_xfade(out, bus, res)
-  connect(smp, env.vca, panner, out, master)
+  env.gain.cancelScheduledValues(now)
+  env.gain.setValueAtTime(0, now)
+  env.gain.linearRampToValueAtTime(amp, now + atk)
+  env.gain.linearRampToValueAtTime(0, now + atk + rls)
+  connect(smp, env, master)
+  // env.gain.value = 0
+
   // connect(panner, filter, fxg, bus)
-  smp.start(now, pos)
-  env.trigger(atk, rls)
-  schedTrash(atk+rls, smp)
+  // env.trigger(atk, rls)
+  smp.start(now, pos, atk + rls)
+  smp.stop(now + atk + rls + 0.1)
+  smp.onended = () => { smp.disconnect() }
+  // schedTrash1(atk+rls+0.2, smp)
 }
 export function PlaySoundScape(amp) {
   const smp = audio.createBufferSource()
