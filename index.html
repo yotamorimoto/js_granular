@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<title>test</title>
+    <style>
+    html {
+    	margin: 0;
+      padding: 0;
+    	color: white;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    #play {
+      position: fixed;
+      z-index: 0;
+      width: 100%; height: 100%;
+      top: 0; left: 0; right: 0; bottom: 0;
+      padding: 0;
+      font-size: 20vw;
+      font-style: italic;
+      text-align: center;
+      letter-spacing: -2px;
+			color: white;
+      background-color: black;
+      border: none;
+      -webkit-transition-duration: 0.4s;
+      transition-duration: 0.4s;
+    }
+    #play:hover {
+      color: black;
+      background-color: white;
+    }
+		#info {
+			position: fixed;
+			z-index: -1;
+			width: 100%;
+			top: auto; left: 0; right: 0; bottom: 20px;
+			font-size: 10vw;
+      font-style: italic;
+      text-align: left;
+      letter-spacing: -2px;
+			line-height: 0.8em;
+			user-select: none;
+		}
+		#ui {
+			position: fixed;
+			top: 0; left: auto; right: 0; bottom: auto;
+			padding: 10px;
+		}
+		input[type=range] {
+			outline: none;
+			margin: 8px;
+		}
+    .glslCanvas {
+      position: fixed;
+      z-index: -2;
+      width: 100%; height: 100%;
+      top: 0; left: 0; right: 0; bottom: 0;
+			user-select: none;
+    }
+		/* MUST AT THE END */
+		@media (orientation: portrait){
+			#info { font-size: 20vw }
+		}
+    </style>
+		<script src='GlslCanvas.min.js'></script>
+	</head>
+	<body>
+		<!--  MUST before the script -->
+		<div id='gl'></div>
+		<button id='play'>play</button>
+		<div id='ui'>
+			<div>
+				<input type='range' min='0' max='1' step='any' id='volume'>
+				<label for='volume'>volume</label>
+			</div>
+			<div>
+				<input type='range' min='0' max='1' step='any' id='speed'>
+				<label for='speed'>speed</label>
+			</div>
+			<div>
+				<input type='range' min='0' max='1' step='any' id='mood'>
+				<label for='mood'>mood</label>
+			</div>
+		</div>
+		<!--  MUST after elements -->
+		<script type='module' src='main.js'></script>
+		<canvas class='glslCanvas' data-fragment-url='shader.frag'></canvas>
+		<div id='info'>granular test</div>
+	</body>
+</html>
