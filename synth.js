@@ -56,12 +56,12 @@ function connect(...nodes) {
   for (let i=0; i<nodes.length-1; i++) nodes[i].connect(nodes[i+1])
 }
 function schedTrash(time, ...nodes) {
-  const when = audio.currentTime + time + 1
-  for (let i=0; i<nodes.length; i++) nodes[i].stop(when)
+  const when = audio.currentTime + time
+  for (let i=0; i<nodes.length; i++) nodes[i].stop(when+0.1)
   setTimeout(() => {
     for (let i=0; i<nodes.length; i++) nodes[i].disconnect()
     nodes = null
-  }, time*1000+1500)
+  }, when*1000+200)
 }
 function schedDone(time, node) {
   setTimeout(() => node.isPlaying = false, time*1000)
@@ -97,7 +97,8 @@ export function Pad(note, db, atk, rls, res) {
   schedTrash(atk+rls, vco)
 }
 export function PlaySample(note, pos, db, atk, rls, res) {
-  const filter = audio.createBiquadFilter()
+  const now = audio.currentTime
+  // const filter = audio.createBiquadFilter()
   const smp = audio.createBufferSource()
   const out = audio.createGain()
   const fxg = audio.createGain()
@@ -107,12 +108,12 @@ export function PlaySample(note, pos, db, atk, rls, res) {
   const map = sample.map[note]
   smp.buffer = sample.buffers[map[0]]
   smp.playbackRate.value = map[1]
-  filter.type = 'lowpass'
-  filter.frequency.value = linexp(0.01, 1, 500, 12000)
-  set_xfade(out, bus, res)
+  // filter.type = 'lowpass'
+  // filter.frequency.value = linexp(0.01, 1, 500, 12000)
+  // set_xfade(out, bus, res)
   connect(smp, env.vca, panner, out, master)
-  connect(panner, filter, fxg, bus)
-  smp.start(0, pos)
+  // connect(panner, filter, fxg, bus)
+  smp.start(now, pos)
   env.trigger(atk, rls)
   schedTrash(atk+rls, smp)
 }

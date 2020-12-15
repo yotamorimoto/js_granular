@@ -33,7 +33,7 @@ sldrSpeed.oninput = function() {
   maxwait = sc.linexp(this.vavlue, 0,1, 6,1.5)
 }
 const instrument = 'felt'
-const blockSize = 8192
+const blockSize = 2048
 const brown = new Brown(10)
 const mTrig = Trig()
 const mTDiv = TDiv()
@@ -48,8 +48,33 @@ let ggg = 0.5
 let b, n1, n2, n3;
 sldrSpeed.oninput()
 
-const onaudioprocess = (e) => {
-  if (tick - audio.currentTime < (blockSize / audio.sampleRate)) {
+// const onaudioprocess = (e) => {
+//   if (tick - audio.currentTime < (blockSize / audio.sampleRate)) {
+//     b = brown.next(
+//       sc.linlin(sldrMood.value, 0,1, 0.05,1.0),
+//       ggg
+//     )
+//     if (mTDiv(mTrig(b[0]), 20)) {
+//       let index = b[3] * 4
+//       index = sc.round(index)
+//       index = sc.mod(index, mode.length)
+//       m = mode[index]
+//       console.log('index: ' + index)
+//     }
+//     tick += interval
+//   }
+//   // note, pos, db, atk, rls, res
+//   n2 = sc.deg2key((b[7]*0.5+rand())*m.length*2, m)+root
+//   PlaySample(
+//     n2,
+//     rand()*0.3,
+//     -18*rand(),
+//     0.05,
+//     0.07,
+//     0.7
+//   )
+// }
+const grain = () => {
     b = brown.next(
       sc.linlin(sldrMood.value, 0,1, 0.05,1.0),
       ggg
@@ -61,29 +86,16 @@ const onaudioprocess = (e) => {
       m = mode[index]
       console.log('index: ' + index)
     }
-    // note, db, atk, rls, res
-    n1 = sc.deg2key(b[6]*m.length*4, m)+root
-    if (cd1(n1)) {
-      Sine(
-        n1,
-        -6*rand()-3,
-        0.005,
-        overlap*4,
-        0.5
-      )
-    }
-    tick += interval
-  }
-  // note, pos, db, atk, rls, res
-  n2 = sc.deg2key((b[7]*0.5+rand())*m.length*2, m)+root
-  PlaySample(
-    n2,
-    rand()*0.3,
-    -18*rand(),
-    0.05,
-    0.07,
-    0.7
-  )
+    // note, pos, db, atk, rls, res
+    n2 = sc.deg2key((b[7]*0.5+rand())*m.length*2, m)+root
+    PlaySample(
+      n2,
+      rand()*0.3,
+      -18*rand(),
+      0.05,
+      0.05,
+      0.7
+    )
 }
 function init() {
   audio = new AudioContext({ latencyHint: blockSize/48000 });
@@ -98,9 +110,10 @@ function init() {
     verb.connect(master)
     master.connect(audio.destination)
     sldrVolume.oninput()
-    const processor = audio.createScriptProcessor(blockSize)
-    processor.onaudioprocess = onaudioprocess
-    processor.connect(audio.destination)
+    // const processor = audio.createScriptProcessor(blockSize)
+    // processor.onaudioprocess = onaudioprocess
+    // processor.connect(audio.destination)
+    setInterval(grain, 50)
   })();
   b = brown.next(
     sc.linlin(sldrMood.value, 0,1, 0.05,1.0),
