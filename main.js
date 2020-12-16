@@ -90,10 +90,10 @@ const grain = () => {
     n2 = sc.deg2key((b[7]*0.5+rand())*m.length*2, m)+root
     PlaySample(
       n2,
-      rand()*0.3,
+      0,
       -18*rand(),
       0.05,
-      0.1,
+      0.05,
       0.7
     )
 }
@@ -110,10 +110,10 @@ function init() {
     verb.connect(master)
     master.connect(audio.destination)
     sldrVolume.oninput()
-    const processor = audio.createScriptProcessor(blockSize)
-    processor.onaudioprocess = onaudioprocess
-    processor.connect(audio.destination)
-    // setInterval(grain, 100)
+    // const processor = audio.createScriptProcessor(blockSize)
+    // processor.onaudioprocess = onaudioprocess
+    // processor.connect(audio.destination)
+    setInterval(grain, 100)
   })();
   b = brown.next(
     sc.linlin(sldrMood.value, 0,1, 0.05,1.0),

@@ -106,34 +106,27 @@ export function Pad(note, db, atk, rls, res) {
   schedTrash(atk+rls, vco)
 }
 export function PlaySample(note, pos, db, atk, rls, res) {
+  let filter = audio.createBiquadFilter()
+  let smp = audio.createBufferSource()
   const now = audio.currentTime
-  // const filter = audio.createBiquadFilter()
-  const smp = audio.createBufferSource()
-  // const out = audio.createGain()
-  // const fxg = audio.createGain()
+  const out = audio.createGain()
+  const fxg = audio.createGain()
   const amp = dbamp(db+sample.db)
-  // const env = new AR(amp)
-  const env = audio.createGain()
+  const env = new AR(amp)
   const panner = new Panner(rand()*2-1)
   const map = sample.map[note]
   smp.buffer = sample.buffers[map[0]]
   smp.playbackRate.cancelScheduledValues(now)
   smp.playbackRate.value = map[1]
-  // filter.type = 'lowpass'
-  // filter.frequency.value = linexp(0.01, 1, 500, 12000)
-  // set_xfade(out, bus, res)
-  env.gain.cancelScheduledValues(now)
-  env.gain.setValueAtTime(0, now)
-  env.gain.linearRampToValueAtTime(amp, now + atk)
-  env.gain.linearRampToValueAtTime(0, now + atk + rls)
-  connect(smp, env, master)
-  // env.gain.value = 0
-
-  // connect(panner, filter, fxg, bus)
-  // env.trigger(atk, rls)
-  smp.start(now, pos, atk + rls)
+  filter.type = 'lowpass'
+  filter.frequency.value = linexp(0.01, 1, 500, 12000)
+  set_xfade(out, bus, res)
+  connect(smp, env.vca, panner, out, master)
+  connect(panner, filter, fxg, bus)
+  env.trigger(atk, rls)
+  smp.start(now, pos)
   smp.stop(now + atk + rls + 0.1)
-  smp.onended = () => { smp.disconnect() }
+  smp.onended = () => { smp.disconnect(); smp = null }
   // schedTrash1(atk+rls+0.2, smp)
 }
 export function PlaySoundScape(amp) {
